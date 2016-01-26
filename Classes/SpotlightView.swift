@@ -11,7 +11,9 @@ import UIKit
 public class SpotlightView: UIView {
     public static let defaultAnimateDuration: NSTimeInterval = 0.25
     
-    var spotlight = Spotlight.Oval(center: CGPointZero, width: 100)
+    var spotlight = Spotlight(shape: .Oval(center: CGPointZero, diameter: 100))
+    
+    var label: UILabel! = UILabel()
     
     private lazy var maskLayer: CAShapeLayer = {
         let layer = CAShapeLayer()
@@ -32,6 +34,9 @@ public class SpotlightView: UIView {
     
     private func commonInit() {
         layer.mask = maskLayer
+        
+        self.label.textColor = UIColor.whiteColor()
+        self.label.font = UIFont(name: "Futura-Medium", size: 16)
     }
     
     public override func layoutSubviews() {
@@ -41,7 +46,21 @@ public class SpotlightView: UIView {
     }
     
     public func appear(spotlight: Spotlight? = nil, duration: NSTimeInterval = SpotlightView.defaultAnimateDuration) {
-        let light = spotlight ?? self.spotlight
+        let light: Spotlight = spotlight ?? self.spotlight
+        
+        if let text = self.spotlight.text {
+            self.label.text = text
+            self.label.sizeToFit()
+            
+            let center = light.shape.center
+            let distanceToEdge = light.shape.size.height / CGFloat(2)
+            let labelWidth = self.label.frame.width
+            let horizontalGap = CGFloat(12)
+            self.label.frame = CGRectMake(center.x - labelWidth / 2, center.y + distanceToEdge + horizontalGap, labelWidth, self.label.frame.height)
+            
+            self.addSubview(self.label)
+        }
+        
         maskLayer.addAnimation(appearAnimation(duration, spotlight: light), forKey: nil)
     }
     
